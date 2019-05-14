@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 trait SiteApi
 {
@@ -16,14 +17,20 @@ trait SiteApi
         $headers['headers'] = array(
             'Authorization' => 'Bearer ' . setting('general.api_token'),
             'Accept'        => 'application/json',
-            'Referer'       => env('APP_URL'),
+            'Referer'       => url('/'),
+            'Akaunting'     => version('short'),
+            'Language'      => language()->getShortCode()
         );
 
         $data['http_errors'] = false;
 
         $data = array_merge($data, $headers);
 
-        $result = $client->get($url, $data);
+        try {
+            $result = $client->get($url, $data);
+        } catch (RequestException $e) {
+            $result = $e;
+        }
 
         return $result;
     }

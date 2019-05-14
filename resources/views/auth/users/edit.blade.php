@@ -9,7 +9,8 @@
             'method' => 'PATCH',
             'files' => true,
             'url' => ['auth/users', $user->id],
-            'role' => 'form'
+            'role' => 'form',
+            'class' => 'form-loading-button'
         ]) !!}
 
         <div class="box-body">
@@ -23,9 +24,21 @@
 
             {{ Form::selectGroup('locale', trans_choice('general.languages', 1), 'flag', language()->allowed()) }}
 
-            {{ Form::fileGroup('picture',  trans_choice('general.pictures', 1)) }}
+            @if (setting('general.use_gravatar', '0') == '1')
+            @stack('picture_input_start')
+            <div class="form-group col-md-6">
+                {!! Form::label('picture', trans_choice('general.pictures', 1), ['class' => 'control-label']) !!}
+                <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-picture-o"></i></div>
+                    {!! Form::text('fake_picture', null, ['id' => 'fake_picture', 'class' => 'form-control', 'disabled' => 'disabled', 'placeholder' => trans('settings.appearance.use_gravatar')]) !!}
+                </div>
+            </div>
+            @stack('picture_input_end')
+            @else
+                {{ Form::fileGroup('picture',  trans_choice('general.pictures', 1)) }}
+            @endif
 
-            @permission('read-companies-companies')
+            @permission('read-common-companies')
             {{ Form::checkboxGroup('companies', trans_choice('general.companies', 2), $companies, 'company_name') }}
             @endpermission
 
@@ -68,35 +81,36 @@
                 placeholder: "{{ trans('general.form.select.field', ['field' => trans_choice('general.languages', 1)]) }}"
             });
 
+            @if (setting('general.use_gravatar', '0') != '1')
             $('#picture').fancyfile({
                 text  : '{{ trans('general.form.select.file') }}',
                 style : 'btn-default',
                 @if($user->picture)
-                placeholder : '<?php echo $user->picture->basename; ?>'
+                placeholder : '{{ $user->picture->basename }}'
                 @else
                 placeholder : '{{ trans('general.form.no_file_selected') }}'
                 @endif
             });
 
             @if($user->picture)
-                picture_html  = '<span class="picture">';
-                picture_html += '    <a href="{{ url('uploads/' . $user->picture->id . '/download') }}">';
-                picture_html += '        <span id="download-picture" class="text-primary">';
-                picture_html += '            <i class="fa fa-file-{{ $user->picture->aggregate_type }}-o"></i> {{ $user->picture->basename }}';
-                picture_html += '        </span>';
-                picture_html += '    </a>';
-                picture_html += '    {!! Form::open(['id' => 'picture-' . $user->picture->id, 'method' => 'DELETE', 'url' => [url('uploads/' . $user->picture->id)], 'style' => 'display:inline']) !!}';
-                picture_html += '    <a id="remove-picture" href="javascript:void();">';
-                picture_html += '        <span class="text-danger"><i class="fa fa fa-times"></i></span>';
-                picture_html += '    </a>';
-                picture_html += '    {!! Form::close() !!}';
-                picture_html += '</span>';
-    
-                $('.fancy-file .fake-file').append(picture_html);
-    
-                $(document).on('click', '#remove-picture', function (e) {
-                    confirmDelete("#picture-{!! $user->picture->id !!}", "{!! trans('general.attachment') !!}", "{!! trans('general.delete_confirm', ['name' => '<strong>' . $user->picture->basename . '</strong>', 'type' => strtolower(trans('general.attachment'))]) !!}", "{!! trans('general.cancel') !!}", "{!! trans('general.delete')  !!}");
-                });
+            $.ajax({
+                url: '{{ url('uploads/' . $user->picture->id . '/show') }}',
+                type: 'GET',
+                data: {column_name: 'picture'},
+                dataType: 'JSON',
+                success: function(json) {
+                    if (json['success']) {
+                        $('.fancy-file').after(json['html']);
+                    }
+                }
+            });
+
+            @permission('delete-common-uploads')
+            $(document).on('click', '#remove-picture', function (e) {
+                confirmDelete("#picture-{!! $user->picture->id !!}", "{!! trans('general.attachment') !!}", "{!! trans('general.delete_confirm', ['name' => '<strong>' . $user->picture->basename . '</strong>', 'type' => strtolower(trans('general.attachment'))]) !!}", "{!! trans('general.cancel') !!}", "{!! trans('general.delete')  !!}");
+            });
+            @endpermission
+            @endif
             @endif
 
             $('input[type=checkbox]').iCheck({

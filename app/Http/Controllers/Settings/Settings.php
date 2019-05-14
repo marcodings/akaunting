@@ -5,15 +5,16 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Setting\Setting as Request;
 use App\Models\Banking\Account;
-use App\Models\Company\Company;
+use App\Models\Common\Company;
 use App\Models\Setting\Currency;
 use App\Models\Setting\Setting;
 use App\Models\Common\Media;
 use App\Models\Setting\Tax;
 use App\Traits\DateTime;
 use App\Traits\Uploads;
+use App\Utilities\Installer;
 use App\Utilities\Modules;
-use DotenvEditor;
+use Date;
 
 class Settings extends Controller
 {
@@ -26,28 +27,22 @@ class Settings extends Controller
      */
     public function edit()
     {
-        /*$setting = Setting::all()->pluck('value', 'key');*/
         $setting = Setting::all()->map(function ($s) {
             $s->key = str_replace('general.', '', $s->key);
 
             return $s;
         })->pluck('value', 'key');
 
-        $company_logo = $setting->pull('company_logo');
-
-        $setting['company_logo'] = Media::find($company_logo);
-
-        $invoice_logo = $setting->pull('invoice_logo');
-
-        $setting['invoice_logo'] = Media::find($invoice_logo);
+        $setting->put('company_logo', Media::find($setting->pull('company_logo')));
+        $setting->put('invoice_logo', Media::find($setting->pull('invoice_logo')));
 
         $timezones = $this->getTimezones();
 
-        $accounts = Account::enabled()->pluck('name', 'id');
+        $accounts = Account::enabled()->orderBy('name')->pluck('name', 'id');
 
-        $currencies = Currency::enabled()->pluck('name', 'code');
+        $currencies = Currency::enabled()->orderBy('name')->pluck('name', 'code');
 
-        $taxes = Tax::enabled()->pluck('name', 'id');
+        $taxes = Tax::enabled()->orderBy('name')->get()->pluck('title', 'id');
 
         $payment_methods = Modules::getPaymentMethods();
 
@@ -56,7 +51,7 @@ class Settings extends Controller
             'd F Y' => '31 December 2017',
             'd m Y' => '31 12 2017',
             'm d Y' => '12 31 2017',
-            'Y m d' => '2017 12 31'
+            'Y m d' => '2017 12 31',
         ];
 
         $date_separators = [
@@ -67,11 +62,34 @@ class Settings extends Controller
             'space' => trans('settings.localisation.date.space'),
         ];
 
+        $item_names = [
+            'settings.invoice.item' => trans('settings.invoice.item'),
+            'settings.invoice.product' => trans('settings.invoice.product'),
+            'settings.invoice.service' =>  trans('settings.invoice.service'),
+            'custom' => trans('settings.invoice.custom'),
+        ];
+
+        $price_names = [
+            'settings.invoice.price' => trans('settings.invoice.price'),
+            'settings.invoice.rate' => trans('settings.invoice.rate'),
+            'custom' => trans('settings.invoice.custom'),
+        ];
+
+        $quantity_names = [
+            'settings.invoice.quantity' => trans('settings.invoice.quantity'),
+            'custom' => trans('settings.invoice.custom'),
+        ];
+
         $email_protocols = [
             'mail' => trans('settings.email.php'),
             'smtp' => trans('settings.email.smtp.name'),
             'sendmail' => trans('settings.email.sendmail'),
-            'log' => trans('settings.email.log')
+            'log' => trans('settings.email.log'),
+        ];
+
+        $percent_positions = [
+            'before' => trans('settings.localisation.percent.before'),
+            'after' => trans('settings.localisation.percent.after'),
         ];
 
         return view('settings.settings.edit', compact(
@@ -83,7 +101,11 @@ class Settings extends Controller
             'payment_methods',
             'date_formats',
             'date_separators',
-            'email_protocols'
+            'item_names',
+            'price_names',
+            'quantity_names',
+            'email_protocols',
+            'percent_positions'
         ));
     }
 
@@ -133,15 +155,9 @@ class Settings extends Controller
                 }
             }
 
-            // Change default locale if only 1 company
-            if (($key == 'default_locale') && ($companies == 1)) {
-                // Update .env file
-                DotenvEditor::setKeys([
-                    [
-                        'key'       => 'APP_LOCALE',
-                        'value'     => $value,
-                    ],
-                ])->save();
+            // If only 1 company
+            if ($companies == 1) {
+                $this->oneCompany($key, $value);
             }
 
             setting()->set('general.' . $key, $value);
@@ -155,5 +171,26 @@ class Settings extends Controller
         flash($message)->success();
 
         return redirect('settings/settings');
+    }
+
+    protected function oneCompany($key, $value)
+    {
+        switch ($key) {
+            case 'company_name':
+                Installer::updateEnv(['MAIL_FROM_NAME' => '"' . $value . '"']);
+                break;
+            case 'company_email':
+                Installer::updateEnv(['MAIL_FROM_ADDRESS' => $value]);
+                break;
+            case 'default_locale':
+                Installer::updateEnv(['APP_LOCALE' => $value]);
+                break;
+            case 'session_handler':
+                Installer::updateEnv(['SESSION_DRIVER' => $value]);
+                break;
+            case 'schedule_time':
+                Installer::updateEnv(['APP_SCHEDULE_TIME' => '"' . $value . '"']);
+                break;
+        }
     }
 }

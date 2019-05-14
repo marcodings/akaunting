@@ -11,6 +11,8 @@ return [
     ],
     'localisation' => [
         'tab'               => 'Localisation',
+        'financial_start'   => 'Financial Year Start',
+        'timezone'          => 'Time Zone',
         'date' => [
             'format'        => 'Date Format',
             'separator'     => 'Date Separator',
@@ -20,7 +22,11 @@ return [
             'slash'         => 'Slash (/)',
             'space'         => 'Space ( )',
         ],
-        'timezone'          => 'Time Zone',
+        'percent' => [
+            'title'         => 'Percent (%) Position',
+            'before'        => 'Before Number',
+            'after'         => 'After Number',
+        ],
     ],
     'invoice' => [
         'tab'               => 'Invoice',
@@ -28,6 +34,16 @@ return [
         'digit'             => 'Number Digit',
         'next'              => 'Next Number',
         'logo'              => 'Logo',
+        'custom'            => 'Custom',
+        'item_name'         => 'Item Name',
+        'item'              => 'Items',
+        'product'           => 'Products',
+        'service'           => 'Services',
+        'price_name'        => 'Price Name',
+        'price'             => 'Price',
+        'rate'              => 'Rate',
+        'quantity_name'     => 'Quantity Name',
+        'quantity'          => 'Quantity',
     ],
     'default' => [
         'tab'               => 'Defaults',
@@ -61,6 +77,8 @@ return [
         'bill_days'         => 'Send Before Due Days',
         'cron_command'      => 'Cron Command',
         'schedule_time'     => 'Hour To Run',
+        'send_item_reminder'=> 'Send Item Reminder',
+        'item_stocks'       => 'Send When Item Stock',
     ],
     'appearance' => [
         'tab'               => 'Appearance',

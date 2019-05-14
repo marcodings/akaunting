@@ -10,6 +10,8 @@ class Setting extends Model
 
     protected $table = 'settings';
 
+    public $timestamps = false;
+
     /**
      * Attributes that should be mass-assignable.
      *
@@ -41,7 +43,7 @@ class Setting extends Model
      */
     public function company()
     {
-        return $this->belongsTo('App\Models\Company\Company');
+        return $this->belongsTo('App\Models\Common\Company');
     }
 
     /**

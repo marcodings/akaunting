@@ -11,6 +11,8 @@ return [
     ],
     'localisation' => [
         'tab'               => 'Localización',
+        'financial_start'   => 'Comienzo año Fiscal',
+        'timezone'          => 'Zona horaria',
         'date' => [
             'format'        => 'Formato de Fecha',
             'separator'     => 'Separador de fecha',
@@ -20,14 +22,28 @@ return [
             'slash'         => 'Barra (/)',
             'space'         => 'Espacio ( )',
         ],
-        'timezone'          => 'Zona horaria',
+        'percent' => [
+            'title'         => 'Posición Porcentaje (%)',
+            'before'        => 'Antes del Número',
+            'after'         => 'Después del número',
+        ],
     ],
     'invoice' => [
         'tab'               => 'Factura',
         'prefix'            => 'Prefijo de número',
-        'digit'             => 'Número de cifras',
+        'digit'             => 'Número de dígitos',
         'next'              => 'Siguiente número',
         'logo'              => 'Logo',
+        'custom'            => 'Personalizado',
+        'item_name'         => 'Nombre del ítem',
+        'item'              => 'Items',
+        'product'           => 'Productos',
+        'service'           => 'Servicios',
+        'price_name'        => 'Nombre de precio',
+        'price'             => 'Precio',
+        'rate'              => 'Tasa',
+        'quantity_name'     => 'Cantidad nombre',
+        'quantity'          => 'Cantidad',
     ],
     'default' => [
         'tab'               => 'Por defecto',
@@ -61,6 +77,8 @@ return [
         'bill_days'         => 'Enviar Antes del Vencimiento',
         'cron_command'      => 'Comando Cron',
         'schedule_time'     => 'Hora de ejecución',
+        'send_item_reminder'=> 'Enviar Recordatorio de Item',
+        'item_stocks'       => 'Enviar cuando Item tenga Stock',
     ],
     'appearance' => [
         'tab'               => 'Apariencia',

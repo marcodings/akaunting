@@ -4,22 +4,22 @@ return [
 
     'name'      =>  'Akaunting',
 
-    'code'      =>  'Import',
+    'code'      =>  'Reconciliation',
 
     'major'     =>  '1',
 
-    'minor'     =>  '1',
+    'minor'     =>  '3',
 
-    'patch'     =>  '6',
+    'patch'     =>  '17',
 
     'build'     =>  '',
-    
+
     'status'    =>  'Stable',
-    
-    'date'      =>  '22-December-2017',
-    
-    'time'      =>  '16:00',
-    
+
+    'date'      =>  '10-April-2019',
+
+    'time'      =>  '21:45',
+
     'zone'      =>  'GMT +3',
-    
+
 ];
